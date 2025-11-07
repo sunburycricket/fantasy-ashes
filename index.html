@@ -16,7 +16,7 @@
   .ok { color:#0b8a44; font-weight:700; }
   .bad { color:red; font-weight:700; }
   .warn { background: #ffecec; transition: background 0.6s ease; }
-  #message { margin-top:6px; color:#b00020; font-weight:700; }
+  #message { margin-top:6px; font-weight:700; }
   caption { caption-side: top; text-align: left; font-weight: 700; color:#001f5b; padding: 6px 0; }
   #extras, #userInfo { margin-top:20px; background:#fff; border:1px solid #ccc; border-radius:6px; padding:12px; }
   label { display:block; margin-top:12px; font-weight:700; color:#001f5b; }
@@ -36,7 +36,7 @@
 
   <label for="email">Email Address</label>
   <input id="email" type="email" placeholder="Enter your email address" required />
-  <small class="hint">We’ll use this to send your receipt and competition updates.</small>
+  <small class="hint">We’ll use this to confirm your entry and competition updates.</small>
 </div>
 
 <div id="competition-rules">
@@ -61,7 +61,8 @@
   <div id="message" aria-live="polite"></div>
 </div>
 
-<table id="playerTable">
+<!-- Full player table -->
+
   <caption>Fantasy Player Selection</caption>
   <thead>
     <tr>
@@ -135,7 +136,7 @@
   <input id="tieBreak" type="number" min="0" max="5000" placeholder="0–5000" />
   <small class="hint">Enter a number between 0 and 5000.</small>
 
-  <button id="submitBtn" disabled>Submit & Pay £10</button>
+  <button id="submitBtn" disabled>Submit Entry</button>
   <small class="hint">Button activates only when all validations pass.</small>
 </div>
 
@@ -159,7 +160,7 @@
   const QUOTAS = { BATTERS: 5, ALLROUNDERS: 1, WICKETKEEPERS: 1, BOWLERS: 4 };
   const MAX_PLAYERS = 11;
   const BUDGET = 75;
-  const STRIKE_CHECKOUT_URL = 'https://strike.me/your-checkout-link'; // TODO: replace with your actual Strike URL
+  const SHEET_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycby9Aj-WqulsnBHHtUjRZUftWGiD-AmzyUK0oAnRvGbpnml6BnJ986gk7gqiT4T4mOR3/exec';
 
   function getRole(row){
     let r = row.previousElementSibling;
@@ -167,17 +168,9 @@
     return r ? r.textContent.trim().toUpperCase() : '';
   }
   function getPlayerName(row){ return row.cells[1].textContent.trim(); }
-  function getRowId(row){ return row.id || ''; }
-
-  // Format prices once
-  rows.forEach(r => {
-    const cell = r.cells[3];
-    const val = parseFloat(cell.textContent.trim());
-    if (!isNaN(val)) cell.textContent = '£' + val.toFixed(1).replace(/\.0$/,'') + 'm';
-  });
 
   function currentTotals(){
-    const checkedRows = rows.filter(r => r.querySelector('.sel').checked);
+    const checkedRows = rows.filter(r => r.querySelector('.sel')?.checked);
     const totalCost = checkedRows.reduce((s, r) => {
       const m = r.cells[3].textContent.match(/([\d\.]+)/);
       return s + (m ? parseFloat(m[1]) : 0);
@@ -188,7 +181,6 @@
       if (roleCounts[role] !== undefined) roleCounts[role]++;
     });
     const selected = checkedRows.map(r => ({
-      id: getRowId(r),
       name: getPlayerName(r),
       role: getRole(r),
       country: r.cells[2].textContent.trim(),
@@ -202,174 +194,84 @@
     captainSelect.disabled = !enable;
     viceSelect.disabled = !enable;
 
-    const previousCaptain = captainSelect.value;
-    const previousVice = viceSelect.value;
-
-    function setOptions(select, names, placeholder){
-      const prev = select.value;
-      select.innerHTML = '';
-      const opt = document.createElement('option');
-      opt.value = ''; opt.textContent = placeholder;
-      select.appendChild(opt);
-      names.forEach(n => {
-        const o = document.createElement('option');
-        o.value = n; o.textContent = n;
-        select.appendChild(o);
-      });
-      if (names.includes(prev)) select.value = prev;
-    }
-
-    setOptions(captainSelect, selectedNames, 'Select captain');
-
+    captainSelect.innerHTML = '<option value="">Select captain</option>' + selectedNames.map(n=>`<option>${n}</option>`).join('');
     const viceNames = selectedNames.filter(n => n !== captainSelect.value);
-    setOptions(viceSelect, viceNames, 'Select vice-captain');
-
-    if (viceSelect.value === captainSelect.value) viceSelect.value = '';
+    viceSelect.innerHTML = '<option value="">Select vice-captain</option>' + viceNames.map(n=>`<option>${n}</option>`).join('');
   }
 
-  function validEmail(str){
-    // Simple, robust email format check
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str);
-  }
+  function validEmail(str){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str); }
 
   function validateForm(){
     const { checkedRows, totalCost, roleCounts, selected } = currentTotals();
     const selectedNames = selected.map(s => s.name);
 
-    // Summary UI
     selCount.textContent = checkedRows.length;
     teamCost.textContent = `£${totalCost.toFixed(1).replace(/\.0$/,'')}m / £${BUDGET}m`;
     selCount.className = checkedRows.length === MAX_PLAYERS ? 'ok' : 'bad';
     teamCost.className = totalCost <= BUDGET ? 'ok' : 'bad';
 
-    roleStatus.textContent = `Batters: ${roleCounts.BATTERS}/${QUOTAS.BATTERS} | Allrounders: ${roleCounts.ALLROUNDERS}/${QUOTAS.ALLROUNDERS} | Keepers: ${roleCounts.WICKETKEEPERS}/${QUOTAS.WICKETKEEPERS} | Bowlers: ${roleCounts.BOWLERS}/${QUOTAS.BOWLERS}`;
     const validRoles =
       roleCounts.BATTERS === QUOTAS.BATTERS &&
       roleCounts.ALLROUNDERS === QUOTAS.ALLROUNDERS &&
       roleCounts.WICKETKEEPERS === QUOTAS.WICKETKEEPERS &&
       roleCounts.BOWLERS === QUOTAS.BOWLERS;
+    roleStatus.textContent = `Batters: ${roleCounts.BATTERS}/${QUOTAS.BATTERS} | Allrounders: ${roleCounts.ALLROUNDERS}/${QUOTAS.ALLROUNDERS} | Keepers: ${roleCounts.WICKETKEEPERS}/${QUOTAS.WICKETKEEPERS} | Bowlers: ${roleCounts.BOWLERS}/${QUOTAS.BOWLERS}`;
     roleStatus.className = validRoles ? 'ok' : 'bad';
 
-    // Visual cue on selected names
-    rows.forEach(r => {
-      r.cells[1].style.fontWeight = r.querySelector('.sel').checked ? '700' : '400';
-    });
-
-    // Captain/Vice dropdowns
     populateCaptainVice(selectedNames);
-    const captain = captainSelect.value;
+    const cap = captainSelect.value;
     const vice = viceSelect.value;
-    const capOk = captain && selectedNames.includes(captain);
-    const viceOk = vice && selectedNames.includes(vice) && vice !== captain;
 
-    // Tie-break validation
-    const tbVal = tieBreak.value === '' ? null : Number(tieBreak.value);
-    const tieOk = tbVal !== null && Number.isFinite(tbVal) && tbVal >= 0 && tbVal <= 5000;
-
-    // Name & email validation
-    const nameOk = (fullName.value || '').trim().length >= 2;
-    const emailOk = validEmail((email.value || '').trim());
-
-    // Overall validation
+    const nameOk = fullName.value.trim().length >= 2;
+    const emailOk = validEmail(email.value.trim());
     const countOk = checkedRows.length === MAX_PLAYERS;
     const budgetOk = totalCost <= BUDGET;
-    const allOk = countOk && budgetOk && validRoles && capOk && viceOk && tieOk && nameOk && emailOk;
+    const capOk = cap && selectedNames.includes(cap);
+    const viceOk = vice && selectedNames.includes(vice) && vice !== cap;
+    const tbOk = tieBreak.value !== '' && !isNaN(Number(tieBreak.value)) && Number(tieBreak.value) >= 0 && Number(tieBreak.value) <= 5000;
 
-    // Messaging
-    message.textContent = '';
-    if (!nameOk) message.textContent = `Please enter your full name.`;
-    else if (!emailOk) message.textContent = `Please enter a valid email address.`;
-    else if (!countOk) message.textContent = `Select exactly ${MAX_PLAYERS} players.`;
-    else if (!budgetOk) message.textContent = `Budget exceeded. Maximum is £${BUDGET}m.`;
-    else if (!validRoles) message.textContent = `Team composition must be 5 Batters, 1 Allrounder, 1 Wicketkeeper, 4 Bowlers.`;
-    else if (!capOk) message.textContent = `Please select a Captain from your XI.`;
-    else if (!viceOk) message.textContent = `Please select a different Vice-Captain from your XI.`;
-    else if (!tieOk) message.textContent = `Please enter a tie-break between 0 and 5000.`;
+    const allOk = nameOk && emailOk && countOk && budgetOk && validRoles && capOk && viceOk && tbOk;
 
     submitBtn.disabled = !allOk;
-    return { allOk, payload: { selected, captain, viceCaptain: vice, tieBreakRuns: tbVal, teamCost: totalCost, fullName: fullName.value.trim(), email: email.value.trim() } };
+
+    message.textContent = '';
+    message.style.color = '#b00020';
+    if (!nameOk) message.textContent = 'Please enter your full name.';
+    else if (!emailOk) message.textContent = 'Please enter a valid email.';
+    else if (!countOk) message.textContent = 'Select exactly 11 players.';
+    else if (!budgetOk) message.textContent = 'Budget exceeded (£75m max).';
+    else if (!validRoles) message.textContent = 'Team composition incorrect.';
+    else if (!capOk) message.textContent = 'Select a Captain.';
+    else if (!viceOk) message.textContent = 'Select a different Vice-Captain.';
+    else if (!tbOk) message.textContent = 'Enter a valid tie-break number.';
+
+    return { allOk, payload: { fullName: fullName.value.trim(), email: email.value.trim(), captain: cap, viceCaptain: vice, tieBreakRuns: Number(tieBreak.value), teamCost: totalCost, selected } };
   }
 
-  // Enforce quotas/count/budget on change (checkboxes)
-  table.addEventListener('change', e => {
-    if (!e.target.classList.contains('sel')) return;
-    const row = e.target.closest('tr');
-    const role = getRole(row);
+  table.addEventListener('change', e => { if (e.target.classList.contains('sel')) validateForm(); });
+  ['input','change'].forEach(evt => [fullName,email,tieBreak,captainSelect,viceSelect].forEach(el => el.addEventListener(evt, validateForm)));
 
-    if (e.target.checked) {
-      const { checkedRows, totalCost, roleCounts } = currentTotals();
-
-      if (checkedRows.length > MAX_PLAYERS) {
-        e.target.checked = false;
-        row.classList.add('warn');
-        message.textContent = `You can only select ${MAX_PLAYERS} players.`;
-        setTimeout(() => row.classList.remove('warn'), 600);
-      } else if (roleCounts[role] > QUOTAS[role]) {
-        e.target.checked = false;
-        row.classList.add('warn');
-        message.textContent = `Quota reached for ${role.toLowerCase()}.`;
-        setTimeout(() => row.classList.remove('warn'), 600);
-      } else if (totalCost > BUDGET) {
-        e.target.checked = false;
-        row.classList.add('warn');
-        message.textContent = `Budget exceeded. Maximum is £${BUDGET}m.`;
-        setTimeout(() => row.classList.remove('warn'), 600);
-      }
-    }
-
-    validateForm();
-  });
-
-  // Captain changes re-populate vice options
-  captainSelect.addEventListener('change', () => {
-    const { payload } = validateForm();
-    // Ensure vice options exclude captain
-    const selectedNames = payload.selected.map(s => s.name);
-    const viceNames = selectedNames.filter(n => n !== captainSelect.value);
-    viceSelect.innerHTML = '';
-    const opt = document.createElement('option');
-    opt.value = ''; opt.textContent = 'Select vice-captain';
-    viceSelect.appendChild(opt);
-    viceNames.forEach(n => {
-      const o = document.createElement('option');
-      o.value = n; o.textContent = n;
-      viceSelect.appendChild(o);
-    });
-    validateForm();
-  });
-
-  // Vice/tie-break/name/email changes revalidate
-  ['change','input'].forEach(evt => {
-    viceSelect.addEventListener(evt, validateForm);
-    tieBreak.addEventListener(evt, validateForm);
-    fullName.addEventListener(evt, validateForm);
-    email.addEventListener(evt, validateForm);
-  });
-
-  // Submit: build payload, optional POST, then redirect to Strike
   submitBtn.addEventListener('click', async (e) => {
     e.preventDefault();
     const { allOk, payload } = validateForm();
     if (!allOk) return;
-
-    // Example: send payload to backend (uncomment and change URL)
-    // try {
-    //   const res = await fetch('/api/entries', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify(payload)
-    //   });
-    //   if (!res.ok) throw new Error('Failed to submit entry');
-    // } catch (err) {
-    //   message.textContent = 'Submission failed. Please try again.';
-    //   return;
-    // }
-
-    // Redirect to Strike checkout for £10 payment
-    window.location.href = STRIKE_CHECKOUT_URL;
+    try {
+      await fetch(SHEET_WEBAPP_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      message.style.color = '#0b8a44';
+      message.textContent = '✅ Entry submitted successfully! Thank you.';
+      submitBtn.disabled = true;
+    } catch (err) {
+      message.style.color = 'red';
+      message.textContent = '❌ Submission failed. Please try again.';
+      console.error(err);
+    }
   });
 
-  // Initial render
   validateForm();
 })();
 </script>
