@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SUNBURY CC - Ashes Fantasy Fundraiser</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; background:#f9f9f9; }
+  h1, h2 { color:#001f5b; }
+  table { border-collapse: collapse; width: 100%; margin-top: 10px; background:#fff; }
+  th, td { border: 1px solid #ccc; padding: 6px 8px; text-align: left; }
+  th { background: #f2f2f2; }
+  tr.role-header td { background: #e6e6e6; font-weight: 700; text-align: left; }
+  #summary { background:#fff; border:1px solid #ccc; border-radius:2px; padding:10px; margin-top:20px; margin-bottom:10px; }
+  #summary span { font-weight:bold; }
+  .ok { color:#0b8a44; font-weight:700; }
+  .bad { color:red; font-weight:700; }
+  .warn { background: #ffecec; transition: background 0.6s ease; }
+  #message { margin-top:6px; color:#b00020; font-weight:700; }
+  caption { caption-side: top; text-align: left; font-weight: 700; color:#001f5b; padding: 6px 0; }
+  #extras, #userInfo { margin-top:20px; background:#fff; border:1px solid #ccc; border-radius:6px; padding:12px; }
+  label { display:block; margin-top:12px; font-weight:700; color:#001f5b; }
+  input[type=text], input[type=email], select, input[type=number] { margin-top:6px; padding:6px; width:100%; max-width:520px; }
+  #submitBtn { margin-top:16px; padding:10px 16px; font-size:16px; font-weight:700; background:#001f5b; color:#fff; border:none; border-radius:6px; cursor:pointer; }
+  #submitBtn:disabled { background:#ccc; cursor:not-allowed; }
+  small.hint { display:block; color:#555; margin-top:4px; }
+</style>
+</head>
+<body>
+
+<h1>SUNBURY CC - Ashes Fantasy Fundraiser</h1>
+
+<div id="userInfo">
+  <label for="fullName">Full Name</label>
+  <input id="fullName" type="text" placeholder="Enter your full name" required />
+
+  <label for="email">Email Address</label>
+  <input id="email" type="email" placeholder="Enter your email address" required />
+  <small class="hint">We’ll use this to send your receipt and competition updates.</small>
+</div>
+
+<div id="competition-rules">
+  <h2>Competition Rules and Deadline</h2>
+  <ul>
+    <li>Select exactly 11 players within a £80m budget.</li>
+    <li>Your XI must be 5 Batters, 1 Allrounder, 1 Wicketkeeper, and 4 Bowlers.</li>
+    <li>Nominate a Captain and a Vice-Captain (they must be different players).</li>
+    <li>Answer the tie break question.</li>
+    <li>Entries close at 2am on Friday 21st November 2025.</li>
+  </ul>
+  <h3>Prize Fund</h3>
+  <ul>
+    <li>A Cash Prize will be paid to the Winner and Runner-up. The prize fund will be 40% of the funds collected.</li>
+  </ul>
+</div>
+
+<div id="summary">
+<b><caption>STATUS</caption></b>
+<ul></ul>
+  Selected: <span id="selCount" >0 </span> / 11 &nbsp; | &nbsp;
+  Team Cost: <span id="teamCost" class="bad">£0m / £80m</span>
+  <div id="roleStatus" class="bad" style="margin-top:6px;">Batters: 0/5 | Allrounders: 0/1 | Keepers: 0/1 | Bowlers: 0/4</div>
+  <div id="message" aria-live="polite"></div>
+</div>
+
+<table id="playerTable">
+  <caption>Fantasy Player Selection</caption>
+  <thead>
+    <tr>
+      <th>Select</th>
+      <th>Player</th>
+      <th>Country</th>
+      <th>Price</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- BATTERS -->
+    <tr class="role-header"><td colspan="4">BATTERS</td></tr>
+    <tr id="p_bethell"><td><input type="checkbox" class="sel"></td><td>Jacob Bethell</td><td>England</td><td>6</td></tr>
+    <tr id="p_brook"><td><input type="checkbox" class="sel"></td><td>Harry Brook</td><td>England</td><td>8</td></tr>
+    <tr id="p_crawley"><td><input type="checkbox" class="sel"></td><td>Zak Crawley</td><td>England</td><td>8</td></tr>
+    <tr id="p_duckett"><td><input type="checkbox" class="sel"></td><td>Ben Duckett</td><td>England</td><td>7</td></tr>
+    <tr id="p_head"><td><input type="checkbox" class="sel"></td><td>Travis Head</td><td>Australia</td><td>8</td></tr>
+    <tr id="p_khawaja"><td><input type="checkbox" class="sel"></td><td>Usman Khawaja</td><td>Australia</td><td>8</td></tr>
+    <tr id="p_labuschagne"><td><input type="checkbox" class="sel"></td><td>Marcus Labuschagne</td><td>Australia</td><td>9</td></tr>
+    <tr id="p_pope"><td><input type="checkbox" class="sel"></td><td>Ollie Pope</td><td>England</td><td>7</td></tr>
+    <tr id="p_root"><td><input type="checkbox" class="sel"></td><td>Joe Root</td><td>England</td><td>9</td></tr>
+    <tr id="p_smith_bat"><td><input type="checkbox" class="sel"></td><td>Steve Smith</td><td>Australia</td><td>9</td></tr>
+    <tr id="p_weatherald"><td><input type="checkbox" class="sel"></td><td>Jake Weatherald</td><td>Australia</td><td>6</td></tr>
+
+    <!-- ALLROUNDERS -->
+    <tr class="role-header"><td colspan="4">ALLROUNDERS</td></tr>
+    <tr id="p_green"><td><input type="checkbox" class="sel"></td><td>Cameron Green</td><td>Australia</td><td>9</td></tr>
+    <tr id="p_jacks"><td><input type="checkbox" class="sel"></td><td>Will Jacks</td><td>England</td><td>7</td></tr>
+    <tr id="p_stokes"><td><input type="checkbox" class="sel"></td><td>Ben Stokes</td><td>England</td><td>9</td></tr>
+    <tr id="p_webster"><td><input type="checkbox" class="sel"></td><td>Beau Webster</td><td>Australia</td><td>7</td></tr>
+
+    <!-- WICKETKEEPERS -->
+    <tr class="role-header"><td colspan="4">WICKETKEEPERS</td></tr>
+    <tr id="p_carey"><td><input type="checkbox" class="sel"></td><td>Alex Carey</td><td>Australia</td><td>7</td></tr>
+    <tr id="p_inglis"><td><input type="checkbox" class="sel"></td><td>Josh Inglis</td><td>Australia</td><td>6</td></tr>
+    <tr id="p_smith_jamie"><td><input type="checkbox" class="sel"></td><td>Jamie Smith</td><td>England</td><td>6</td></tr>
+
+    <!-- BOWLERS -->
+    <tr class="role-header"><td colspan="4">BOWLERS</td></tr>
+    <tr id="p_abbott"><td><input type="checkbox" class="sel"></td><td>Sean Abbott</td><td>Australia</td><td>7</td></tr>
+    <tr id="p_archer"><td><input type="checkbox" class="sel"></td><td>Jofra Archer</td><td>England</td><td>8</td></tr>
+    <tr id="p_atkinson"><td><input type="checkbox" class="sel"></td><td>Gus Atkinson</td><td>England</td><td>7</td></tr>
+    <tr id="p_bashir"><td><input type="checkbox" class="sel"></td><td>Shoaib Bashir</td><td>England</td><td>6</td></tr>
+    <tr id="p_boland"><td><input type="checkbox" class="sel"></td><td>Scott Boland</td><td>Australia</td><td>7</td></tr>
+    <tr id="p_carse"><td><input type="checkbox" class="sel"></td><td>Brydon Carse</td><td>England</td><td>7</td></tr>
+    <tr id="p_cummins"><td><input type="checkbox" class="sel"></td><td>Pat Cummins</td><td>Australia</td><td>9</td></tr>
+    <tr id="p_doggett"><td><input type="checkbox" class="sel"></td><td>Brendan Doggett</td><td>Australia</td><td>6</td></tr>
+    <tr id="p_hazlewood"><td><input type="checkbox" class="sel"></td><td>Josh Hazlewood</td><td>Australia</td><td>8</td></tr>
+    <tr id="p_lyon"><td><input type="checkbox" class="sel"></td><td>Nathan Lyon</td><td>Australia</td><td>8</td></tr>
+    <tr id="p_potts"><td><input type="checkbox" class="sel"></td><td>Matthew Potts</td><td>England</td><td>7</td></tr>
+    <tr id="p_tongue"><td><input type="checkbox" class="sel"></td><td>Josh Tongue</td><td>England</td><td>7</td></tr>
+    <tr id="p_wood"><td><input type="checkbox" class="sel"></td><td>Mark Wood</td><td>England</td><td>8</td></tr>
+  </tbody>
+</table>
+
+<div id="extras">
+  <h2>Captain, tie-break, and entry</h2>
+  <label for="captainSelect">Captain</label>
+  <select id="captainSelect" disabled>
+    <option value="">Select captain</option>
+  </select>
+  <small class="hint">Captain must be chosen from your selected XI.</small>
+
+  <label for="viceSelect">Vice-Captain</label>
+  <select id="viceSelect" disabled>
+    <option value="">Select vice-captain</option>
+  </select>
+  <small class="hint">Vice-Captain must be different from Captain.</small>
+
+  <label for="tieBreak">Tie-break: In total, how many runs will England score across the 5 test matches?</label>
+  <input id="tieBreak" type="number" min="0" max="5000" placeholder="0–5000" />
+  <small class="hint">Enter a number between 0 and 5000.</small>
+
+
+  <button id="submitBtn" disabled>Submit & Pay £10</button>
+  <small class="hint">Button activates only when all validations pass.</small>
+</div>
+
+<script>
+(function(){
+  const table = document.getElementById('playerTable');
+  const rows = [...table.querySelectorAll('tbody tr')].filter(r => !r.classList.contains('role-header'));
+  const selCount = document.getElementById('selCount');
+  const teamCost = document.getElementById('teamCost');
+  const roleStatus = document.getElementById('roleStatus');
+  const message = document.getElementById('message');
+
+  const captainSelect = document.getElementById('captainSelect');
+  const viceSelect = document.getElementById('viceSelect');
+  const tieBreak = document.getElementById('tieBreak');
+  const submitBtn = document.getElementById('submitBtn');
+
+  const fullName = document.getElementById('fullName');
+  const email = document.getElementById('email');
+
+  const QUOTAS = { BATTERS: 5, ALLROUNDERS: 1, WICKETKEEPERS: 1, BOWLERS: 4 };
+  const MAX_PLAYERS = 11;
+  const BUDGET = 80;
+  const STRIKE_CHECKOUT_URL = 'https://strike.me/your-checkout-link'; // TODO: replace with your actual Strike URL
+
+  function getRole(row){
+    let r = row.previousElementSibling;
+    while (r && !r.classList.contains('role-header')) r = r.previousElementSibling;
+    return r ? r.textContent.trim().toUpperCase() : '';
+  }
+  function getPlayerName(row){ return row.cells[1].textContent.trim(); }
+  function getRowId(row){ return row.id || ''; }
+
+  // Format prices once
+  rows.forEach(r => {
+    const cell = r.cells[3];
+    const val = parseFloat(cell.textContent.trim());
+    if (!isNaN(val)) cell.textContent = '£' + val.toFixed(1).replace(/\.0$/,'') + 'm';
+  });
+
+  function currentTotals(){
+    const checkedRows = rows.filter(r => r.querySelector('.sel').checked);
+    const totalCost = checkedRows.reduce((s, r) => {
+      const m = r.cells[3].textContent.match(/([\d\.]+)/);
+      return s + (m ? parseFloat(m[1]) : 0);
+    }, 0);
+    const roleCounts = { BATTERS:0, ALLROUNDERS:0, WICKETKEEPERS:0, BOWLERS:0 };
+    checkedRows.forEach(r => {
+      const role = getRole(r);
+      if (roleCounts[role] !== undefined) roleCounts[role]++;
+    });
+    const selected = checkedRows.map(r => ({
+      id: getRowId(r),
+      name: getPlayerName(r),
+      role: getRole(r),
+      country: r.cells[2].textContent.trim(),
+      price: parseFloat(r.cells[3].textContent.match(/([\d\.]+)/)[1])
+    }));
+    return { checkedRows, totalCost, roleCounts, selected };
+  }
+
+  function populateCaptainVice(selectedNames){
+    const enable = selectedNames.length === MAX_PLAYERS;
+    captainSelect.disabled = !enable;
+    viceSelect.disabled = !enable;
+
+    function setOptions(select, names, placeholder){
+      const prev = select.value;
+      select.innerHTML = '';
+      const opt = document.createElement('option');
+      opt.value = ''; opt.textContent = placeholder;
+      select.appendChild(opt);
+      names.forEach(n => {
+        const o = document.createElement('option');
+        o.value = n; o.textContent = n;
+        select.appendChild(o);
+      });
+      if (names.includes(prev)) select.value = prev;
+    }
+
+    setOptions(captainSelect, selectedNames, 'Select captain');
+
+    const viceNames = selectedNames.filter(n => n !== captainSelect.value);
+    setOptions(viceSelect, viceNames, 'Select vice-captain');
+
+    if (viceSelect.value === captainSelect.value) viceSelect.value = '';
+  }
+
+  function validEmail(str){
+    // Simple, robust email format check
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str);
+  }
+
+  function validateForm(){
+    const { checkedRows, totalCost, roleCounts, selected } = currentTotals();
+    const selectedNames = selected.map(s => s.name);
+
+    // Summary UI
+    selCount.textContent = checkedRows.length;
+    teamCost.textContent = `£${totalCost.toFixed(1).replace(/\.0$/,'')}m / £${BUDGET}m`;
+    selCount.className = checkedRows.length === MAX_PLAYERS ? 'ok' : 'bad';
+    teamCost.className = totalCost <= BUDGET ? 'ok' : 'bad';
+
+    roleStatus.textContent = `Batters: ${roleCounts.BATTERS}/${QUOTAS.BATTERS} | Allrounders: ${roleCounts.ALLROUNDERS}/${QUOTAS.ALLROUNDERS} | Keepers: ${roleCounts.WICKETKEEPERS}/${QUOTAS.WICKETKEEPERS} | Bowlers: ${roleCounts.BOWLERS}/${QUOTAS.BOWLERS}`;
+    const validRoles =
+      roleCounts.BATTERS === QUOTAS.BATTERS &&
+      roleCounts.ALLROUNDERS === QUOTAS.ALLROUNDERS &&
+      roleCounts.WICKETKEEPERS === QUOTAS.WICKETKEEPERS &&
+      roleCounts.BOWLERS === QUOTAS.BOWLERS;
+    roleStatus.className = validRoles ? 'ok' : 'bad';
+
+    // Visual cue on selected names
+    rows.forEach(r => {
+      r.cells[1].style.fontWeight = r.querySelector('.sel').checked ? '700' : '400';
+    });
+
+    // Captain/Vice dropdowns
+    populateCaptainVice(selectedNames);
+    const captain = captainSelect.value;
+    const vice = viceSelect.value;
+    const capOk = captain && selectedNames.includes(captain);
+    const viceOk = vice && selectedNames.includes(vice) && vice !== captain;
+
+    // Tie-break validation
+    const tbVal = tieBreak.value === '' ? null : Number(tieBreak.value);
+    const tieOk = tbVal !== null && Number.isFinite(tbVal) && tbVal >= 0 && tbVal <= 5000;
+
+    // Name & email validation
+    const nameOk = (fullName.value || '').trim().length >= 2;
+    const emailOk = validEmail((email.value || '').trim());
+
+    // Overall validation
+    const countOk = checkedRows.length === MAX_PLAYERS;
+    const budgetOk = totalCost <= BUDGET;
+    const allOk = countOk && budgetOk && validRoles && capOk && viceOk && tieOk && nameOk && emailOk;
+
+    // Messaging
+    message.textContent = '';
+    if (!nameOk) message.textContent = `Please enter your full name.`;
+    else if (!emailOk) message.textContent = `Please enter a valid email address.`;
+    else if (!countOk) message.textContent = `Select exactly ${MAX_PLAYERS} players.`;
+    else if (!budgetOk) message.textContent = `Budget exceeded. Maximum is £${BUDGET}m.`;
+    else if (!validRoles) message.textContent = `Team composition must be 5 Batters, 1 Allrounder, 1 Wicketkeeper, 4 Bowlers.`;
+    else if (!capOk) message.textContent = `Please select a Captain from your XI.`;
+    else if (!viceOk) message.textContent = `Please select a different Vice-Captain from your XI.`;
+    else if (!tieOk) message.textContent = `Please enter a tie-break between 0 and 5000.`;
+
+    submitBtn.disabled = !allOk;
+    // Spread selected players into Player1..Player11
+const playerFields = selectedNames.reduce((acc, name, i) => {
+  acc[`Player${i+1}`] = name;
+  return acc;
+}, {});
+
+return {
+  allOk,
+  payload: {
+    fullName: fullName.value.trim(),
+    email: email.value.trim(),
+    teamCost: totalCost,
+    captain,
+    viceCaptain: vice,
+    tieBreakRuns: tbVal,
+    ...playerFields   // 👈 adds Player1..Player11
+  }
+};
+  }
+
+  // Enforce quotas/count/budget on change (checkboxes)
+  table.addEventListener('change', e => {
+    if (!e.target.classList.contains('sel')) return;
+    const row = e.target.closest('tr');
+    const role = getRole(row);
+
+    if (e.target.checked) {
+      const { checkedRows, totalCost, roleCounts } = currentTotals();
+
+      if (checkedRows.length > MAX_PLAYERS) {
+        e.target.checked = false;
+        row.classList.add('warn');
+        message.textContent = `You can only select ${MAX_PLAYERS} players.`;
+        setTimeout(() => row.classList.remove('warn'), 600);
+      } else if (roleCounts[role] > QUOTAS[role]) {
+        e.target.checked = false;
+        row.classList.add('warn');
+        message.textContent = `Quota reached for ${role.toLowerCase()}.`;
+        setTimeout(() => row.classList.remove('warn'), 600);
+      } else if (totalCost > BUDGET) {
+        e.target.checked = false;
+        row.classList.add('warn');
+        message.textContent = `Budget exceeded. Maximum is £${BUDGET}m.`;
+        setTimeout(() => row.classList.remove('warn'), 600);
+      }
+    }
+
+    validateForm();
+  });
+
+  // Captain changes re-populate vice options (fixed to use selectedNames)
+  captainSelect.addEventListener('change', () => {
+    const { payload } = validateForm();
+    const selectedNames = payload.selectedNames;
+    const viceNames = selectedNames.filter(n => n !== captainSelect.value);
+    viceSelect.innerHTML = '';
+    const opt = document.createElement('option');
+    opt.value = ''; opt.textContent = 'Select vice-captain';
+    viceSelect.appendChild(opt);
+    viceNames.forEach(n => {
+      const o = document.createElement('option');
+      o.value = n; o.textContent = n;
+      viceSelect.appendChild(o);
+    });
+    validateForm();
+  });
+
+  // Vice/tie-break/name/email changes revalidate
+  ['change','input'].forEach(evt => {
+    viceSelect.addEventListener(evt, validateForm);
+    tieBreak.addEventListener(evt, validateForm);
+    fullName.addEventListener(evt, validateForm);
+    email.addEventListener(evt, validateForm);
+  });
+
+  // Submit: build payload and send to Google Sheets
+  submitBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const { allOk, payload } = validateForm();
+    if (!allOk) return;
+
+    const SHEET_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzOXRPKRQrF-0w6Om6BTDDjmzPzYZ5pbLu5tcpT9TMTSJ-EfDMF6p8TpxbvkyglLOx0/exec'; // Replace with your real URL
+
+    try {
+        await fetch(SHEET_WEBAPP_URL, {
+          method: 'POST',
+          mode: 'no-cors',   // 👈 here is the no-cors option
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      message.style.color = '#0b8a44';
+      message.textContent = '✅ Entry submitted successfully! Thank you.';
+      submitBtn.disabled = true;
+    } catch (err) {
+      console.error(err);
+      message.style.color = 'red';
+      message.textContent = '❌ Submission failed. Please try again later.';
+    }
+  });
+
+  // Initial render
+  validateForm();
+})();
+</script>
+
+</body>
+</html>
