@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Rules</title>
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* Fixed site-wide header */
+    .site-header {
+      background-color: skyblue;
+      color: white;
+      text-align: center;
+      padding: 20px;
+      font-size: 1.6rem;
+      font-weight: bold;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+    }
+
+    /* Fixed navbar just below header */
+    .navbar {
+      background: #0B1636;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      padding: 12px;
+      position: fixed;
+      top: 70px; /* sits just below header */
+      left: 0;
+      width: 100%;
+      z-index: 999;
+    }
+
+    .navbar a {
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .navbar a.active {
+      text-decoration: underline;
+    }
+
+    body {
+      margin: 0;
+      padding-top: 130px; /* header + navbar height */
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+    }
+
+    .rules-page {
+      padding: 25px;
+      background: #f5f5f5;
+      min-height: 100vh;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 0.25rem;
+      color: #0B1636;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 0px;
+      background: #fff;
+      font-size: 1rem;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 6px 8px;
+      text-align: left;
+    }
+
+    th {
+      background: #f2f2f2;
+      font-weight: 700;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+
+    tr.role-header td {
+      background: #e6e6e6;
+      font-weight: 700;
+      text-align: left;
+    }
+
+    caption {
+      caption-side: top;
+      text-align: left;
+      font-weight: 700;
+      color: #001f5b;
+      padding: 6px 0;
+    }
+
+    /* Formatting helpers */
+    .no-wrap { white-space: nowrap; }
+    .center { text-align: center; }
+    .red { color: red; }
+
+    /* Transfers-specific (retained for consistency) */
+    td.changed { background-color: #ffcccc; }
+    #error { color:red; font-weight:700; margin-top:10px; }
+    #transferBtn {
+      margin-top:20px;
+      padding:10px 16px;
+      font-size:16px;
+      font-weight:700;
+      background:#001f5b;
+      color:#fff;
+      border:none;
+      border-radius:6px;
+      cursor:pointer;
+    }
+    #transferBtn:disabled { background:#ccc; cursor:not-allowed; }
+    #emailBar {
+      display:flex;
+      gap:10px;
+      align-items:center;
+      margin: 10px 0 14px 0;
+    }
+    #emailBar input[type=email] {
+      padding:6px;
+      width:100%;
+      max-width:360px;
+    }
+    #emailBar button {
+      padding:8px 12px;
+      font-weight:700;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Fixed site-wide header -->
+<div class="site-header">
+  SUNBURY CRICKET CLUB - ASHES FANTASY FUNDRAISER
+</div>
+
+<!-- Fixed navbar -->
+<div class="navbar">
+  <a href="index.html">LEADERBOARD</a>
+  <a href="teams.html">TEAMS</a>
+  <a href="player-stats.html">PLAYER STATS</a>
+  <a href="transfers.html">TRANSFERS</a>
+  <a class="active" href="rules.html">RULES</a>
+</div>
+
+<div class="rules-page">
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <h1>Rules</h1>
+    </div>
+
+    <div class="container">
+      <h2>POINTS</h2>
+      <ul>
+        <li>Run: 1</li>
+        <li>Wicket: 20</li>
+        <li>Half-century: 10 Bonus points</li>
+        <li>Century: 20 Bonus points</li>
+        <li>5 Wickets: 25 Bonus points</li>
+        <li>7 Wickets: 40 Bonus points</li>
+        <li>Catch or Run Out: 10</li>
+        <li>Duck: -5 (minus 5). Does not apply if the batter is Not Out.</li>
+        <li>CAPTAIN - Any points earnt by your Captain will be doubled.</li>
+        <li>VICE CAPTAIN - If your Captain is not selected or does not win a point in a Test Match, your Vice Captain's points will be multiplied by 1.5.</li>
+      </ul>
+
+      <h2>GENERAL GUIDANCE</h2>
+      <ol style="margin-left: 0; padding-left: 20px;">
+        <li>Select exactly <b>11</b> players within a <b>£86m</b> budget.</li>
+        <li>Your XI must be 5 Batters, 1 Allrounder, 1 Wicketkeeper, and 4 Bowlers.</li>
+        <li>No limit on English or Australian players.</li>
+        <li>The <b>STATUS</b> box will guide you. Resolve all <span class="red">RED</span> messages.</li>
+        <li>Once all error messages are removed you can click <b>Submit & Pay £10</b>.</li>
+        <li>You will be directed to a separate webpage to make your payment.</li>
+        <li>Ensure permission of the payer <b>BEFORE</b> you submit your team.</li>
+        <li><b>DEADLINE:</b> 2am on Friday 21st November 2025. Late submissions ignored.</li>
+        <li>Stats sourced from espncricinfo.com.</li>
+        <li>If a player fields as a <b>substitute</b>, their points count.</li>
+        <li>Prize awarded after each test to the highest scorer.</li>
+        <li>Competition WINNER, RUNNER UP, THIRD PLACE announced within 3 days of 5th Test conclusion.</li>
+        <li>Questions? Contact Colin Bentall.</li>
+      </ol>
+
+      <h2>TRANSFERS</h2>
+      <ol style="margin-left: 0; padding-left: 20px;">
+        <li>After each Test Match, you may make <b>TWO</b> transfers before the next Test.</li>
+        <li>To make a transfer, click here <a href="transfers.html"><b>TRANSFERS</b></a></li>
+      </ol>
+
+      <p><b>Finally, should you have any questions, please contact Colin Bentall.</b></p>
+      <p><b>GOOD LUCK! </b> &#128522;</p>
+      <p class="note">Close this tab to return to your entry.</p>
+
+      <small>
+        <b>Terms & Conditions</b><br>
+        Disclaimer: This competition is a skill-based fundraising event organised by Sunbury Cricket Club, a Community Amateur Sports Club (CASC). Entrants use their knowledge and judgment to select teams, and success depends on skill rather than chance. Accordingly, this competition is not a lottery or game of chance and is not regulated under the Gambling Act 2005. In case of a dispute, the final decision rests with the Management Committee.
+      </small>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

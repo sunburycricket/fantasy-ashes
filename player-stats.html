@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Player Stats</title>
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* Fixed site-wide header */
+    .site-header {
+      background-color: skyblue;
+      color: white;
+      text-align: center;
+      padding: 20px;
+      font-size: 1.6rem;
+      font-weight: bold;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+    }
+
+    /* Fixed navbar just below header */
+    .navbar {
+      background: #0B1636;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      padding: 12px;
+      position: fixed;
+      top: 70px; /* sits just below header */
+      left: 0;
+      width: 100%;
+      z-index: 999;
+    }
+
+    .navbar a {
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .navbar a.active {
+      text-decoration: underline;
+    }
+
+    /* Push page content down so it doesn't overlap fixed header+navbar */
+    body {
+      margin: 0;
+      padding-top: 130px; /* header (70px) + navbar (60px approx) */
+    }
+
+    .leaderboard-page {
+      padding: 25px;
+      background: #f5f5f5;
+      min-height: 100vh;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 0.25rem;
+      color: #0B1636;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    #tableWrap {
+      overflow-x: auto;
+      max-height: 750px;
+      overflow-y: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 1rem;
+    }
+
+    th, td {
+      padding: 10px 8px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    th {
+      font-weight: 700;
+      background: #f1f5f9;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+
+    td, th { text-align: left; }
+    td.center, th.center { text-align: center; }
+
+    /* Rank highlight rows */
+    tr.rank-1 { background-color: #fff176 !important; }
+    tr.rank-2 { background-color: #fff9c4 !important; }
+    tr.rank-3 { background-color: #fffde7 !important; }
+
+    .meta {
+      color: #6b7280;
+      font-size: 0.9rem;
+    }
+
+    .refresh {
+      float: right;
+      font-size: 0.9rem;
+      color: #2563eb;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    /* No special styling for test max values (intentionally normal) */
+    .max-value { font-weight: normal; color: inherit; }
+    .max-value-1st { font-weight: normal; color: inherit; }
+
+    /* TOTAL column bold, inherit typeface and size */
+    .total-col { font-weight: 700; color: inherit; }
+  </style>
+</head>
+
+<body>
+
+<!-- Fixed site-wide header -->
+<div class="site-header">
+  SUNBURY CRICKET CLUB - ASHES FANTASY FUNDRAISER
+</div>
+
+<!-- Fixed navbar -->
+<div class="navbar">
+  <a href="index.html">LEADERBOARD</a>
+  <a href="teams.html">TEAMS</a>
+  <a class="active" href="player-stats.html">PLAYER STATS</a>
+  <a href="transfers.html">TRANSFERS</a>
+  <a href="rules.html">RULES</a>
+</div>
+
+<!-- PAGE WRAPPER -->
+<div class="leaderboard-page">
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div><h1>Player Stats</h1></div>
+      <div class="refresh" id="manualRefresh">Refresh</div>
+    </div>
+
+    <div id="lastUpdated" class="meta" style="margin-top:6px;">Last updated: —</div>
+    <br>
+
+    <div id="tableWrap">
+      <table id="leaderboard">
+        <thead><tr id="theadRow"></tr></thead>
+        <tbody id="tbodyRow"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const CSV_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vSXkhOKdWeUqIOOUoD_Gp9BVXXu3yrdbhQd97rPUazXEdycwI33SjUpOW8-kNaCmeVpP0q5o1ChHc41/pub?output=csv&gid=326386520";
+const REFRESH_MS = 30000;
+
+function parseCSV(text) {
+  const rows = [];
+  let cur = "";
+  let row = [];
+  let inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i], nxt = text[i+1];
+    if (ch === '"') {
+      if (inQuotes && nxt === '"') { cur += '"'; i++; }
+      else inQuotes = !inQuotes;
+      continue;
+    }
+    if (ch === "," && !inQuotes) { row.push(cur); cur = ""; continue; }
+    if ((ch === "\n" || ch === "\r") && !inQuotes) {
+      if (cur !== "" || row.length > 0) { row.push(cur); rows.push(row); cur = ""; row = []; }
+      if (ch === "\r" && nxt === "\n") i++;
+      continue;
+    }
+    cur += ch;
+  }
+  if (cur !== "" || row.length > 0) { row.push(cur); rows.push(row); }
+  return rows;
+}
+
+async function fetchAndRender() {
+  try {
+    const res = await fetch(CSV_URL, { cache: "no-store" });
+    const txt = await res.text();
+    const rows = parseCSV(txt);
+
+    const header = rows[0] || [];
+    const data = rows.slice(1).filter(r => r.some(c => (c || "").trim() !== ""));
+
+    // Identify key columns
+    const totalColIndex = header.findIndex(h => /total/i.test((h || "").trim()));
+    let nameColIndex = header.findIndex(h => /^(player|name)$/i.test((h || "").trim()));
+    if (nameColIndex < 0) nameColIndex = 1; // fallback likely Player column
+    const rankColIndex = 0; // Column 1 is rank
+
+    // Sort by TOTAL desc, blanks to bottom; tie-break by name asc
+    if (totalColIndex >= 0) {
+      data.sort((a, b) => {
+        const aVal = parseFloat(a[totalColIndex]);
+        const bVal = parseFloat(b[totalColIndex]);
+        const aScore = isNaN(aVal) ? -Infinity : aVal;
+        const bScore = isNaN(bVal) ? -Infinity : bVal;
+        if (bScore !== aScore) return bScore - aScore; // TOTAL descending
+        const aName = (a[nameColIndex] || "").toLowerCase();
+        const bName = (b[nameColIndex] || "").toLowerCase();
+        return aName.localeCompare(bName); // tie-break ascending by name
+      });
+    }
+
+    // Recompute rank numbers into column 1
+    data.forEach((row, i) => {
+      while (row.length <= rankColIndex) row.push("");
+      row[rankColIndex] = String(i + 1);
+    });
+
+    renderTable(header, data, { rankColIndex, totalColIndex });
+    document.getElementById("lastUpdated").textContent =
+      "Last updated: " + new Date().toLocaleString();
+  } catch (err) {
+    console.error(err);
+    document.getElementById("lastUpdated").textContent =
+      "Update failed: " + err.message;
+  }
+}
+
+function renderTable(header, data, indices) {
+  const { rankColIndex, totalColIndex } = indices;
+
+  const thead = document.getElementById("theadRow");
+  const tbody = document.getElementById("tbodyRow");
+  thead.innerHTML = "";
+  tbody.innerHTML = "";
+
+  // Ensure header label for rank
+  if (!header[rankColIndex] || !/rank/i.test((header[rankColIndex] || ""))) {
+    header[rankColIndex] = "Rank";
+  }
+
+  // Center rank, total, and test columns
+  const centerCols = header.map(h =>
+    /^(rank)$/i.test((h || "").trim()) || /total|test/i.test((h || "").trim()) ? "center" : ""
+  );
+
+  // Detect test columns
+  const testCols = header
+    .map((h,i) =>
+      (/1st\s*test|2nd\s*test|3rd\s*test|4th\s*test|5th\s*test|(^|[^0-9])test/i.test((h || "").trim()) ? i : -1)
+    )
+    .filter(i => i >= 0);
+
+  // Build header
+  header.forEach((h, i) => {
+    const th = document.createElement("th");
+    th.textContent = h || "—";
+    if (centerCols[i]) th.classList.add(centerCols[i]);
+    thead.appendChild(th);
+  });
+
+  // Compute max values for each test column (kept for future use)
+  const maxVals = {};
+  testCols.forEach(ci => {
+    const vals = data.map(r => {
+      const v = parseFloat(r[ci]);
+      return isNaN(v) ? -Infinity : v;
+    });
+    maxVals[ci] = Math.max(...vals);
+  });
+
+  // Render rows
+  data.forEach((row) => {
+    const tr = document.createElement("tr");
+
+    // Highlight top 3 by recomputed rank
+    const rankNum = parseInt(row[rankColIndex], 10);
+    if (rankNum === 1) tr.classList.add("rank-1");
+    else if (rankNum === 2) tr.classList.add("rank-2");
+    else if (rankNum === 3) tr.classList.add("rank-3");
+
+    header.forEach((_, ci) => {
+      const td = document.createElement("td");
+      const raw = row[ci] ?? "";
+      td.textContent = raw;
+
+      if (centerCols[ci]) td.classList.add(centerCols[ci]);
+
+      // Bold TOTAL column values
+      if (ci === totalColIndex) td.classList.add("total-col");
+
+      // (Optional feature retained but disabled)
+      // if (testCols.includes(ci)) {
+      //   const val = parseFloat(raw);
+      //   if (!isNaN(val) && val === maxVals[ci]) {
+      //     const isFirstTest = /1st\s*test/i.test((header[ci] || "").trim());
+      //     td.classList.add(isFirstTest ? "max-value-1st" : "max-value");
+      //   }
+      // }
+
+      tr.appendChild(td);
+    });
+
+    tbody.appendChild(tr);
+  });
+}
+
+document.getElementById("manualRefresh").addEventListener("click", fetchAndRender);
+fetchAndRender();
+if (REFRESH_MS > 0) setInterval(fetchAndRender, REFRESH_MS);
+</script>
+
+</body>
+</html>
