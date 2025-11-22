@@ -28,90 +28,37 @@
       gap: 20px;
       padding: 12px;
       position: fixed;
-      top: 70px; /* sits just below header */
+      top: 70px;
       left: 0;
       width: 100%;
       z-index: 999;
     }
+    .navbar a { color: white; text-decoration: none; font-weight: 600; }
+    .navbar a.active { text-decoration: underline; }
 
-    .navbar a {
-      color: white;
-      text-decoration: none;
-      font-weight: 600;
-    }
+    body { margin: 0; padding-top: 130px; background: #f5f5f5; }
 
-    .navbar a.active {
-      text-decoration: underline;
-    }
-
-    /* Push page content down so it doesn't overlap fixed header+navbar */
-    body {
-      margin: 0;
-      padding-top: 130px; /* header (70px) + navbar (60px approx) */
-    }
-
-    .teams-page {
-      padding: 25px;
-      background: #f5f5f5;
-      min-height: 100vh;
-    }
-
-    h1 {
-      font-size: 1.8rem;
-      margin-bottom: 0.25rem;
-      color: #0B1636;
-    }
+    .teams-page { padding: 25px; min-height: 100vh; }
+    h1 { font-size: 1.8rem; margin-bottom: 0.25rem; color: #0B1636; }
 
     .card {
       background: white;
       padding: 20px;
       border-radius: 16px;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
       max-width: 1700px;
-      margin: 0;
+      margin: 0 auto;
     }
 
-    #tableWrap {
-      overflow-x: auto;
-      max-height: 2000px;
-      overflow-y: auto;
-    }
+    #tableWrap { overflow-x: auto; max-height: 2000px; overflow-y: auto; }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 1rem;
-    }
+    table { width: 100%; border-collapse: collapse; font-size: 1rem; }
+    th, td { padding: 10px 8px; border-bottom: 1px solid #e5e7eb; text-align: left; }
+    th { font-weight: 700; background: #f1f5f9; position: sticky; top: 0; z-index: 5; }
 
-    th, td {
-      padding: 10px 8px;
-      border-bottom: 1px solid #e5e7eb;
-    }
+    .meta { color: #6b7280; font-size: 0.9rem; }
+    .refresh { float: right; font-size: 0.9rem; color: #2563eb; cursor: pointer; text-decoration: underline; }
 
-    th {
-      font-weight: 700;
-      background: #f1f5f9;
-      position: sticky;
-      top: 0;
-      z-index: 5;
-    }
-
-    td, th { text-align: left; }
-
-    .meta {
-      color: #6b7280;
-      font-size: 0.9rem;
-    }
-
-    .refresh {
-      float: right;
-      font-size: 0.9rem;
-      color: #2563eb;
-      cursor: pointer;
-      text-decoration: underline;
-    }
-
-    /* Formatting helpers */
     .no-wrap { white-space: nowrap; }
     .center { text-align: center; }
     .red { color: red; }
@@ -119,12 +66,7 @@
 </head>
 <body>
 
-<!-- Fixed site-wide header -->
-<div class="site-header">
-  SUNBURY CRICKET CLUB - ASHES FANTASY FUNDRAISER
-</div>
-
-<!-- Fixed navbar -->
+<div class="site-header">SUNBURY CRICKET CLUB - ASHES FANTASY FUNDRAISER</div>
 <div class="navbar">
   <a href="index.html">LEADERBOARD</a>
   <a class="active" href="teams.html">TEAMS</a>
@@ -137,7 +79,7 @@
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center;">
       <h1>Teams</h1>
-      <div class="refresh" id="manualRefresh">Refresh</div>
+      <div class="refresh" id="manualRefresh"></div>
     </div>
 
     <div id="lastUpdated" class="meta" style="margin-top:6px;">Last updated: —</div>
@@ -179,69 +121,57 @@ function parseCSV(text) {
   return rows;
 }
 
-async function fetchAndRender() {
+async function fetchAndRenderTeams() {
   try {
     const res = await fetch(CSV_URL, { cache: "no-store" });
     if (!res.ok) throw new Error("Fetch failed: " + res.status);
     const txt = await res.text();
     const rows = parseCSV(txt);
-
     if (!rows.length) throw new Error("No data found.");
 
-    const header = rows[0];
+    const header = rows[0]; // first row (row 1) is headers
     const data = rows.slice(1).filter(r => r.some(c => (c || "").trim() !== ""));
 
-    renderTable(header, data);
-
+    // ✅ Use R1 (header col index 17) for "Last updated"
+    const lastUpdatedHeader = header[17] || ""; // column R
     document.getElementById("lastUpdated").textContent =
-      "Last updated: " + new Date().toLocaleString();
+      "Last updated: " + (lastUpdatedHeader || "—");
+
+    const thead = document.getElementById("theadRow");
+    const tbody = document.getElementById("tbodyRow");
+    thead.innerHTML = "";
+    tbody.innerHTML = "";
+
+    // Build header, skipping column R (index 17)
+    header.forEach((h, ci) => {
+      if (ci === 17) return; // skip column R
+      const th = document.createElement("th");
+      th.textContent = h || "—";
+      thead.appendChild(th);
+    });
+
+    // Build rows, skipping column R (index 17)
+    data.forEach(row => {
+      const tr = document.createElement("tr");
+      row.forEach((cell, ci) => {
+        if (ci === 17) return; // skip column R
+        const td = document.createElement("td");
+        td.textContent = cell ?? "";
+        if (/name/i.test(header[ci] || "")) td.classList.add("no-wrap");
+        if (/£\s*available/i.test(header[ci] || "")) td.classList.add("no-wrap", "center", "red");
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
   } catch (err) {
     console.error(err);
-    document.getElementById("lastUpdated").textContent =
-      "Update failed: " + err.message;
+    document.getElementById("lastUpdated").textContent = "Update failed: " + err.message;
   }
 }
 
-function renderTable(header, data) {
-  const thead = document.getElementById("theadRow");
-  const tbody = document.getElementById("tbodyRow");
-  thead.innerHTML = "";
-  tbody.innerHTML = "";
-
-  // Build header
-  header.forEach(h => {
-    const th = document.createElement("th");
-    th.textContent = h || "—";
-    if (/name/i.test(h || "")) {
-      th.classList.add("no-wrap");
-    }
-    if (/£\s*available/i.test(h || "")) {
-      th.classList.add("center", "red");
-    }
-    thead.appendChild(th);
-  });
-
-  // Build rows
-  data.forEach(row => {
-    const tr = document.createElement("tr");
-    row.forEach((cell, ci) => {
-      const td = document.createElement("td");
-      td.textContent = cell ?? "";
-      if (/name/i.test(header[ci] || "")) {
-        td.classList.add("no-wrap");
-      }
-      if (/£\s*available/i.test(header[ci] || "")) {
-        td.classList.add("no-wrap", "center", "red");
-      }
-      tr.appendChild(td);
-    });
-    tbody.appendChild(tr);
-  });
-}
-
-document.getElementById("manualRefresh").addEventListener("click", fetchAndRender);
-fetchAndRender();
-if (REFRESH_MS > 0) setInterval(fetchAndRender, REFRESH_MS);
+document.getElementById("manualRefresh").addEventListener("click", fetchAndRenderTeams);
+fetchAndRenderTeams();
+if (REFRESH_MS > 0) setInterval(fetchAndRenderTeams, REFRESH_MS);
 </script>
 
 </body>

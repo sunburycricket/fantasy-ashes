@@ -28,7 +28,7 @@
       gap: 20px;
       padding: 12px;
       position: fixed;
-      top: 70px; /* sits just below header */
+      top: 70px;
       left: 0;
       width: 100%;
       z-index: 999;
@@ -44,10 +44,9 @@
       text-decoration: underline;
     }
 
-    /* Push page content down so it doesn't overlap fixed header+navbar */
     body {
       margin: 0;
-      padding-top: 130px; /* header (70px) + navbar (60px approx) */
+      padding-top: 130px; /* header + navbar height */
     }
 
     .leaderboard-page {
@@ -145,10 +144,8 @@
 <div class="leaderboard-page">
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center;">
-      <div>
-        <h1>Leaderboard</h1>
-      </div>
-      <div class="refresh" id="manualRefresh">Refresh</div>
+      <div><h1>Leaderboard</h1></div>
+      <div class="refresh" id="manualRefresh"></div>
     </div>
 
     <div id="lastUpdated" class="meta" style="margin-top:6px;">Last updated: —</div>
@@ -177,14 +174,17 @@
       const cols = json.table.cols.map(c => c.label);
       const rows = json.table.rows;
 
+      // Build header (skip column I)
       const theadRow = document.getElementById("theadRow");
       theadRow.innerHTML = "";
-      cols.forEach((label) => {
+      cols.forEach((label, colIndex) => {
+        if (colIndex === 8) return; // skip column I
         const th = document.createElement("th");
         th.textContent = label;
         theadRow.appendChild(th);
       });
 
+      // Build body (skip column I)
       const tbodyRow = document.getElementById("tbodyRow");
       tbodyRow.innerHTML = "";
       rows.forEach((row, i) => {
@@ -194,10 +194,11 @@
         if (i === 2) tr.classList.add("rank-3");
 
         row.c.forEach((cell, colIndex) => {
+          if (colIndex === 8) return; // skip column I
           const td = document.createElement("td");
           const value = cell ? (cell.f || cell.v) : "";
 
-          if (cols[colIndex].toLowerCase() === "total") {
+          if (cols[colIndex] && cols[colIndex].toLowerCase() === "total") {
             td.textContent = value;
             td.classList.add("total-col");
           } else {
@@ -209,8 +210,11 @@
         tbodyRow.appendChild(tr);
       });
 
+      // Use I1 (header label for column I) as "Last updated"
+      const lastUpdatedLabel = json.table.cols[8] ? json.table.cols[8].label : null;
       document.getElementById("lastUpdated").textContent =
-        "Last updated: " + new Date().toLocaleString();
+        "Last updated: " + (lastUpdatedLabel || "—");
+
     } catch (err) {
       console.error("Error fetching data", err);
       document.getElementById("lastUpdated").textContent = "Error fetching data";
