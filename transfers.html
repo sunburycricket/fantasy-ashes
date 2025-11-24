@@ -44,15 +44,17 @@
     }
 
     table.transfer-table {
-      width: 100%;
+      width: 800px;
       border-collapse: collapse;
-      table-layout: fixed; /* ensures fixed column widths */
+      table-layout: fixed; /* ensures fixed column widths are applied */
     }
 
-    table.transfer-table th, table.transfer-table td {
+    table.transfer-table th, 
+    table.transfer-table td {
       padding: 10px;
       border: 1px solid #ccc;
-      text-align: center;
+      text-align: left; /* default left align */
+      box-sizing: border-box; /* keeps padding inside the fixed width */
     }
 
     table.transfer-table th {
@@ -63,31 +65,29 @@
     /* Fixed widths for each column */
     table.transfer-table th:nth-child(1),
     table.transfer-table td:nth-child(1) {
-      width: 25%; /* Role column */
+      width: 100px; /* Role column */
+      text-align: center; /* keep Role centered */
     }
+
     table.transfer-table th:nth-child(2),
     table.transfer-table td:nth-child(2) {
-      width: 37.5%; /* Player OUT column */
+      width: 200px; /* Player OUT column */
     }
+
     table.transfer-table th:nth-child(3),
     table.transfer-table td:nth-child(3) {
-      width: 37.5%; /* Player IN column */
+      width: 200px; /* Player IN column */
     }
 
-    /* Make selects fill their cell but not expand table */
+    /* Form controls */
     select {
-      width: 100%;
-      box-sizing: border-box;
-    }
-
-
-
-    select, input[type="email"] {
       padding: 8px;
       border-radius: 6px;
       border: 1px solid #ccc;
       width: 100%;
+      box-sizing: border-box;
     }
+
     .email-row {
       display: flex;
       align-items: center;
@@ -99,7 +99,18 @@
       color: #0B1636;
       white-space: nowrap;
     }
-    .email-row input { flex: 1; }
+    /* Remove flex growth and fix email width */
+    .email-row input {
+      flex: 0 0 auto;
+    }
+    #email {
+      width: 100px;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
     .submit-btn {
       background: #28a745; /* green */
       color: white;
@@ -140,10 +151,16 @@
     <li>If your transfer is rejected, you will receive an email.</li> 
   </ul>  
     
-    <div class="email-row">
-      <label for="email">Email Address</label>
-      <input id="email" type="email" placeholder="Enter your email address" required />
-    </div>
+<div class="email-row">
+  <label for="email">Email Address</label>
+  <input id="email" type="email" placeholder="Enter your email address" required />
+</div>
+
+
+
+
+
+
 
     <table class="transfer-table">
       <thead>
