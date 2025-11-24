@@ -46,7 +46,7 @@
       padding: 20px;
       border-radius: 16px;
       box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-      max-width: 1700px;
+      max-width: 1720px;
       margin: 0 auto;
     }
 
@@ -132,8 +132,8 @@ async function fetchAndRenderTeams() {
     const header = rows[0]; // first row (row 1) is headers
     const data = rows.slice(1).filter(r => r.some(c => (c || "").trim() !== ""));
 
-    // ✅ Use R1 (header col index 17) for "Last updated"
-    const lastUpdatedHeader = header[17] || ""; // column R
+    // ✅ Use S1 (header col index 17) for "Last updated"
+    const lastUpdatedHeader = header[18] || ""; // column R
     document.getElementById("lastUpdated").textContent =
       "Last updated: " + (lastUpdatedHeader || "—");
 
@@ -142,19 +142,19 @@ async function fetchAndRenderTeams() {
     thead.innerHTML = "";
     tbody.innerHTML = "";
 
-    // Build header, skipping column R (index 17)
+    // Build header, skipping column R (index 17) and column S (index 18)
     header.forEach((h, ci) => {
-      if (ci === 17) return; // skip column R
+      if (ci === 17 || ci === 18) return; // skip columns R and S
       const th = document.createElement("th");
       th.textContent = h || "—";
       thead.appendChild(th);
     });
 
-    // Build rows, skipping column R (index 17)
+    // Build rows, skipping column R (index 17) and column S (index 18)
     data.forEach(row => {
       const tr = document.createElement("tr");
       row.forEach((cell, ci) => {
-        if (ci === 17) return; // skip column R
+        if (ci === 17 || ci === 18) return; // skip columns R and S
         const td = document.createElement("td");
         td.textContent = cell ?? "";
         if (/name/i.test(header[ci] || "")) td.classList.add("no-wrap");
@@ -168,6 +168,13 @@ async function fetchAndRenderTeams() {
     document.getElementById("lastUpdated").textContent = "Update failed: " + err.message;
   }
 }
+
+
+
+
+
+
+
 
 document.getElementById("manualRefresh").addEventListener("click", fetchAndRenderTeams);
 fetchAndRenderTeams();
