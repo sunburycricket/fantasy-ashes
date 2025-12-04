@@ -162,7 +162,7 @@ async function fetchAndRenderStats() {
     });
 
     // Highlight max values in columns C–G (indexes 2–6)
-    highlightMaxValues([3,4,5,6,7]);
+    
   } catch (err) {
     console.error(err);
     document.getElementById("lastUpdated").textContent = "Update failed: " + err.message;
