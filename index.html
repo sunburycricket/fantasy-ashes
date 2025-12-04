@@ -230,8 +230,8 @@
       for (let colIndex = 0; colIndex < colCount; colIndex++) {
         const headerText = headers[colIndex].textContent.trim().toLowerCase();
 
-      // Skip TOTAL column
-      if (headerText === "total") continue;
+      // Skip TOTAL and RANK columns
+      if (headerText === "total" || headerText === "rank") continue;
 
       let maxVal = -Infinity;
 
