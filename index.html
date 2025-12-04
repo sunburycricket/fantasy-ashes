@@ -121,6 +121,11 @@
       text-decoration: underline;
     }
 
+    .highlight-max {
+    font-weight: bold;
+    color: red;
+    }
+
     .total-col { font-weight: bold; }
   </style>
 </head>
@@ -214,6 +219,45 @@
       const lastUpdatedLabel = json.table.cols[8] ? json.table.cols[8].label : null;
       document.getElementById("lastUpdated").textContent =
         "Last updated: " + (lastUpdatedLabel || "—");
+
+
+      // Highlight max value in each column (all ties, skip TOTAL column, skip zeros)
+      const table = document.getElementById("leaderboard");
+      const rowsEls = table.querySelectorAll("tbody tr");
+      const headers = table.querySelectorAll("thead th");
+      const colCount = headers.length;
+
+      for (let colIndex = 0; colIndex < colCount; colIndex++) {
+        const headerText = headers[colIndex].textContent.trim().toLowerCase();
+
+      // Skip TOTAL column
+      if (headerText === "total") continue;
+
+      let maxVal = -Infinity;
+
+      // First pass: find max value in this column
+      rowsEls.forEach(row => {
+        const cell = row.cells[colIndex];
+        if (!cell) return;
+        const val = parseFloat(cell.textContent.replace(/,/g, ""));
+        if (!isNaN(val) && val > maxVal) {
+          maxVal = val;
+        }
+      });
+
+      // Second pass: highlight all cells equal to max (but not zero)
+      rowsEls.forEach(row => {
+        const cell = row.cells[colIndex];
+        if (!cell) return;
+        const val = parseFloat(cell.textContent.replace(/,/g, ""));
+        if (!isNaN(val) && val === maxVal && val !== 0) {
+          cell.classList.add("highlight-max");
+        }
+      });
+    }
+
+
+
 
     } catch (err) {
       console.error("Error fetching data", err);
