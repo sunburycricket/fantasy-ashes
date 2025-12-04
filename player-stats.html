@@ -130,11 +130,10 @@ async function fetchAndRenderStats() {
     const rows = parseCSV(txt);
     if (!rows.length) throw new Error("No data found.");
 
-    const header = rows[0]; // first row (row 1) is headers
+    const header = rows[0];
     const data = rows.slice(1).filter(r => r.some(c => (c || "").trim() !== ""));
 
-    // ✅ Use I1 (header col index 8) for "Last updated"
-    const lastUpdatedHeader = header[8] || ""; // column I
+    const lastUpdatedHeader = header[8] || "";
     document.getElementById("lastUpdated").textContent =
       "Last updated: " + (lastUpdatedHeader || "—");
 
@@ -143,19 +142,17 @@ async function fetchAndRenderStats() {
     thead.innerHTML = "";
     tbody.innerHTML = "";
 
-    // Build header, skipping column I (index 8)
     header.forEach((h, ci) => {
-      if (ci === 8) return; // skip column I
+      if (ci === 8) return;
       const th = document.createElement("th");
       th.textContent = h || "—";
       thead.appendChild(th);
     });
 
-    // Build rows, skipping column I (index 8)
     data.forEach(row => {
       const tr = document.createElement("tr");
       row.forEach((cell, ci) => {
-        if (ci === 8) return; // skip column I
+        if (ci === 8) return;
         const td = document.createElement("td");
         td.textContent = cell ?? "";
         if (/total/i.test(header[ci] || "")) td.classList.add("total-col");
@@ -163,17 +160,44 @@ async function fetchAndRenderStats() {
       });
       tbody.appendChild(tr);
     });
+
+    // Highlight max values in columns C–G (indexes 2–6)
+    highlightMaxValues([3,4,5,6,7]);
   } catch (err) {
     console.error(err);
     document.getElementById("lastUpdated").textContent = "Update failed: " + err.message;
   }
 }
 
+function highlightMaxValues(colIndexes) {
+  const table = document.getElementById("statsTable");
+  const rows = table.querySelectorAll("tbody tr");
+
+  colIndexes.forEach(ci => {
+    let maxVal = -Infinity;
+    rows.forEach(tr => {
+      const td = tr.children[ci];
+      if (!td) return;
+      const val = parseFloat(td.textContent.replace(/[^0-9.\-]/g,""));
+      if (!isNaN(val)) maxVal = Math.max(maxVal, val);
+    });
+    rows.forEach(tr => {
+      const td = tr.children[ci];
+      if (!td) return;
+      const val = parseFloat(td.textContent.replace(/[^0-9.\-]/g,""));
+      if (val === maxVal) {
+        td.style.backgroundColor = "yellow"; // bright yellow
+        td.style.fontWeight = "bold";
+      }
+    });
+  });
+}
+
 document.getElementById("manualRefresh").addEventListener("click", fetchAndRenderStats);
 fetchAndRenderStats();
 if (REFRESH_MS > 0) setInterval(fetchAndRenderStats, REFRESH_MS);
 </script>
+
 <p style="text-align: center;"><b>Tiebreak</b> - England Runs: 172, 164. <b>336</b></p>
 </body>
 </html>
-
