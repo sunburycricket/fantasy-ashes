@@ -9,7 +9,6 @@
         async src="//gc.zgo.at/count.js"></script>
 
 
-
   <style>
     /* Fixed site-wide header */
     .site-header {
@@ -159,127 +158,14 @@
   <a href="rules.html">RULES</a>
 </div>
 
-<div class="leaderboard-page">
+<div class="teams-page">
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center;">
-      <div><h1>Leaderboard</h1></div>
-      <div class="refresh" id="manualRefresh"></div>
-    </div>
-
-    <div id="lastUpdated" class="meta" style="margin-top:6px;">Last updated: —</div>
-    <br>
-
-    <div id="tableWrap">
-      <table id="leaderboard">
-        <thead><tr id="theadRow"></tr></thead>
-        <tbody id="tbodyRow"></tbody>
-      </table>
-    </div>
-  </div>
+      <h1>Leaderboard</h1>
+</div>
+    <h3>Temporarily offline for maintenance update.</h3>
 </div>
 
-<script>
-  const SHEET_ID = "1KdJSeVfMnYqV9olfYKkUUNkLldeaKhMuXrphWPWUps0";
-  const SHEET_NAME = "Leaderboard";
-  const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}`;
-
-  async function fetchAndRender() {
-    try {
-      const res = await fetch(SHEET_URL);
-      const text = await res.text();
-      const json = JSON.parse(text.substr(47).slice(0, -2));
-
-      const cols = json.table.cols.map(c => c.label);
-      const rows = json.table.rows;
-
-      // Build header (skip column I)
-      const theadRow = document.getElementById("theadRow");
-      theadRow.innerHTML = "";
-      cols.forEach((label, colIndex) => {
-        if (colIndex === 8) return; // skip column I
-        const th = document.createElement("th");
-        th.textContent = label;
-        theadRow.appendChild(th);
-      });
-
-      // Build body (skip column I)
-      const tbodyRow = document.getElementById("tbodyRow");
-      tbodyRow.innerHTML = "";
-      rows.forEach((row, i) => {
-        const tr = document.createElement("tr");
-        if (i === 0) tr.classList.add("rank-1");
-        if (i === 1) tr.classList.add("rank-2");
-        if (i === 2) tr.classList.add("rank-3");
-
-        row.c.forEach((cell, colIndex) => {
-          if (colIndex === 8) return; // skip column I
-          const td = document.createElement("td");
-          const value = cell ? (cell.f || cell.v) : "";
-
-          if (cols[colIndex] && cols[colIndex].toLowerCase() === "total") {
-            td.textContent = value;
-            td.classList.add("total-col");
-          } else {
-            td.textContent = value;
-          }
-
-          tr.appendChild(td);
-        });
-        tbodyRow.appendChild(tr);
-      });
-
-      // Use I1 (header label for column I) as "Last updated"
-      const lastUpdatedLabel = json.table.cols[8] ? json.table.cols[8].label : null;
-      document.getElementById("lastUpdated").textContent =
-        "Last updated: " + (lastUpdatedLabel || "—");
-
-
-      // Highlight max value in each column (all ties, skip TOTAL column, skip zeros)
-      const table = document.getElementById("leaderboard");
-      const rowsEls = table.querySelectorAll("tbody tr");
-      const headers = table.querySelectorAll("thead th");
-      const colCount = headers.length;
-
-      for (let colIndex = 0; colIndex < colCount; colIndex++) {
-        const headerText = headers[colIndex].textContent.trim().toLowerCase();
-
-      // Skip TOTAL and RANK columns
-      if (headerText === "total" || headerText === "rank") continue;
-
-      let maxVal = -Infinity;
-
-      // First pass: find max value in this column
-      rowsEls.forEach(row => {
-        const cell = row.cells[colIndex];
-        if (!cell) return;
-        const val = parseFloat(cell.textContent.replace(/,/g, ""));
-        if (!isNaN(val) && val > maxVal) {
-          maxVal = val;
-        }
-      });
-
-      // Second pass: highlight all cells equal to max (but not zero)
-      rowsEls.forEach(row => {
-        const cell = row.cells[colIndex];
-        if (!cell) return;
-        const val = parseFloat(cell.textContent.replace(/,/g, ""));
-        if (!isNaN(val) && val === maxVal && val !== 0) {
-          cell.classList.add("highlight-max");
-        }
-      });
-    }
-
-
-
-    } catch (err) {
-      console.error("Error fetching data", err);
-      document.getElementById("lastUpdated").textContent = "Error fetching data";
-    }
-  }
-
-  document.getElementById("manualRefresh").addEventListener("click", fetchAndRender);
-  fetchAndRender();
-</script>
 
 <script src="swipe-nav.js"></script>
 
