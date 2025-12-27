@@ -3,9 +3,7 @@
 <head>
   <title>Transfers</title>
   <link rel="stylesheet" href="style.css">
-
   <style>
-    /* Fixed site-wide header */
     .site-header {
       background-color: skyblue;
       color: white;
@@ -19,8 +17,6 @@
       width: 100%;
       z-index: 1000;
     }
-
-    /* Fixed navbar just below header */
     .navbar {
       background: #0B1636;
       display: flex;
@@ -28,144 +24,115 @@
       gap: 20px;
       padding: 12px;
       position: fixed;
-      top: 70px; /* sits just below header */
+      top: 70px;
       left: 0;
       width: 100%;
       z-index: 999;
     }
-
-    .navbar a {
-      color: white;
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    .navbar a.active {
-      text-decoration: underline;
-    }
-
-    body {
-      margin: 0;
-      padding-top: 130px; /* header + navbar height */
-      font-family: Arial, sans-serif;
-      background: #f9f9f9;
-    }
-
-    .teams-page {
-      padding: 25px;
-      background: #f5f5f5;
-      min-height: 100vh;
-    }
-
-    h1 {
-      font-size: 1.8rem;
-      margin-bottom: 0.25rem;
-      color: #0B1636;
-    }
-
+    .navbar a { color: white; text-decoration: none; font-weight: 600; }
+    .navbar a.active { text-decoration: underline; }
+    body { margin: 0; padding-top: 130px; background: #f5f5f5; }
+    .transfers-page { padding: 25px; min-height: 100vh; }
+    h1 { font-size: 1.8rem; margin-bottom: 0.25rem; color: #0B1636; }
     .card {
       background: white;
       padding: 20px;
       border-radius: 16px;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-      max-width: 960px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+      max-width: 1000px;
       margin: 0 auto;
     }
 
-    #tableWrap {
-      overflow-x: auto;
-      max-height: 2000px;
-      overflow-y: auto;
-    }
-
-    table {
-      width: 100%;
+    table.transfer-table {
+      width: 800px;
       border-collapse: collapse;
-      font-size: 1rem;
-      background: #fff;
+      table-layout: fixed; /* ensures fixed column widths are applied */
     }
 
-    th, td {
+    table.transfer-table th, 
+    table.transfer-table td {
+      padding: 10px;
       border: 1px solid #ccc;
-      padding: 6px 8px;
-      text-align: left;
+      text-align: left; /* default left align */
+      box-sizing: border-box; /* keeps padding inside the fixed width */
     }
 
-    th {
-      font-weight: 700;
-      background: #f2f2f2;
-      position: sticky;
-      top: 0;
-      z-index: 5;
+    table.transfer-table th {
+      background: #f1f5f9;
+      color: #0B1636;
     }
 
-    tr.role-header td {
-      background: #e6e6e6;
-      font-weight: 700;
-      text-align: left;
+    /* Fixed widths for each column */
+    table.transfer-table th:nth-child(1),
+    table.transfer-table td:nth-child(1) {
+      width: 100px; /* Role column */
+      text-align: center; /* keep Role centered */
     }
 
-    caption {
-      caption-side: top;
-      text-align: left;
-      font-weight: 700;
-      color: #001f5b;
-      padding: 6px 0;
+    table.transfer-table th:nth-child(2),
+    table.transfer-table td:nth-child(2) {
+      width: 200px; /* Player OUT column */
     }
 
-    .meta {
-      color: #6b7280;
-      font-size: 0.9rem;
+    table.transfer-table th:nth-child(3),
+    table.transfer-table td:nth-child(3) {
+      width: 200px; /* Player IN column */
     }
 
-    .refresh {
-      float: right;
-      font-size: 0.9rem;
-      color: #2563eb;
+    /* Form controls */
+    select {
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .email-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .email-row label {
+      font-weight: 600;
+      color: #0B1636;
+      white-space: nowrap;
+    }
+    /* Remove flex growth and fix email width */
+    .email-row input {
+      flex: 0 0 auto;
+    }
+    #email {
+      width: 400px;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    .captain-select {
+      width: 300px;   /* adjust as needed */
+    }
+
+    .submit-btn {
+      background: #28a745; /* green */
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
       cursor: pointer;
-      text-decoration: underline;
+      font-weight: 600;
+      margin-top: 20px;
     }
-
-    /* Transfers-specific */
-    td.changed { background-color: #ffcccc; } /* light red */
-    #error { color:red; font-weight:700; margin-top:10px; }
-    #transferBtn {
-      margin-top:20px;
-      padding:10px 16px;
-      font-size:16px;
-      font-weight:700;
-      background:#001f5b;
-      color:#fff;
-      border:none;
-      border-radius:6px;
-      cursor:pointer;
-    }
-    #transferBtn:disabled { background:#ccc; cursor:not-allowed; }
-    #emailBar {
-      display:flex;
-      gap:10px;
-      align-items:center;
-      margin: 10px 0 14px 0;
-    }
-    #emailBar input[type=email] {
-      padding:6px;
-      width:100%;
-      max-width:360px;
-    }
-    #emailBar button {
-      padding:8px 12px;
-      font-weight:700;
-    }
+    .submit-btn:hover { background: #218838; }
+    .out-selected { background-color: #ffcccc; }
+    .in-selected { background-color: #ccffcc; }
   </style>
 </head>
 <body>
 
-<!-- Fixed site-wide header -->
-<div class="site-header">
-  SUNBURY CRICKET CLUB - ASHES FANTASY FUNDRAISER
-</div>
-
-<!-- Fixed navbar -->
+<div class="site-header">SUNBURY CRICKET CLUB - ASHES FANTASY FUNDRAISER</div>
 <div class="navbar">
   <a href="index.html">LEADERBOARD</a>
   <a href="teams.html">TEAMS</a>
@@ -174,13 +141,331 @@
   <a href="rules.html">RULES</a>
 </div>
 
-<div class="teams-page">
+<div class="transfers-page">
   <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <h1>Transfers</h1>
+    <h1>Make Your Transfers</h1>
+    <p>You may make up to <strong>TWO</strong> transfers before the start of the 4th Test.</p>
+    <p>Deadline: <strong>Thursday 25th December at 11:30pm</strong>.</p>
+    
+  <ul style="margin-left: 0; padding-left: 20px;">
+    <li>First, check your current team on the <a href="teams.html"><b>TEAMS</b></a> page.</li>
+    <li>Complete the form below.</li>
+    <li>Once submitted, it will be checked to ensure you have not exceed the <b>£86M</b> limit and the TEAMS page will then be updated.</li>
+    <li>A ✅ will display by those entrants who have successfully submitted a transfer.</li>
+    <li>If your transfer is rejected, a ❌ will display and you will receive an email.</li>
+    <li>If you are transferring OUT your Captain, you may select a replacement by completing the field below.</li>
+    <li>You cannot change your Vice Captain.</li>
+  </ul>  
+    
+<div class="email-row">
+  <label for="email">Email Address</label>
+  <input id="email" type="email" placeholder="Enter your email address" required />
 </div>
-    <h3>More information to follow at the conclusion of the 4th Test.</h3>
+
+
+
+    <table class="transfer-table">
+      <thead>
+        <tr>
+          <th>Role</th>
+          <th>Player OUT</th>
+          <th>Player IN</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <select id="role1" onchange="updatePlayers('role1','out1','in1')">
+              <option value="">Select Role</option>
+              <option value="Batters">Batter</option>
+              <option value="Allrounders">Allrounder</option>
+              <option value="Wicketkeepers">Wicketkeeper</option>
+              <option value="Bowlers">Bowler</option>
+            </select>
+          </td>
+          <td><select id="out1"><option value="">Select Player</option></select></td>
+          <td><select id="in1"><option value="">Select Player</option></select></td>
+        </tr>
+        <tr>
+          <td>
+            <select id="role2" onchange="updatePlayers('role2','out2','in2')">
+              <option value="">Select Role</option>
+              <option value="Batters">Batter</option>
+              <option value="Allrounders">Allrounder</option>
+              <option value="Wicketkeepers">Wicketkeeper</option>
+              <option value="Bowlers">Bowler</option>
+            </select>
+          </td>
+          <td><select id="out2"><option value="">Select Player</option></select></td>
+          <td><select id="in2"><option value="">Select Player</option></select></td>
+        </tr>
+      </tbody>
+    </table>
+
+<br>
+<br>
+
+<div style="margin-bottom: 20px;">
+  <label for="newCaptain" style="font-weight:600; color:#0B1636;">
+    Change Captain (optional)
+  </label>
+  <select id="newCaptain" class="captain-select">
+    <option value="">No change</option>
+    <option>Alex Carey</option>
+    <option>Beau Webster</option>
+    <option>Ben Duckett</option>
+    <option>Ben Stokes</option>
+    <option>Brendan Doggett</option>
+    <option>Brydon Carse</option>
+    <option>Cameron Green</option>
+    <option>Gus Atkinson</option>
+    <option>Harry Brook</option>
+    <option>Jacob Bethell</option>
+    <option>Jake Weatherald</option>
+    <option>Jamie Smith</option>
+    <option>Joe Root</option>
+    <option>Jofra Archer</option>
+    <option>Josh Hazlewood</option>
+    <option>Josh Inglis</option>
+    <option>Josh Tongue</option>
+    <option>Marcus Labuschagne</option>
+    <option>Mark Wood</option>
+    <option>Matthew Potts</option>
+    <option>Matthew Fisher</option>
+    <option>Michael Neser</option>
+    <option>Mitchell Starc</option>
+    <option>Nathan Lyon</option>
+    <option>Ollie Pope</option>
+    <option>Pat Cummins</option>
+    <option>Scott Boland</option>
+    <option>Sean Abbott</option>
+    <option>Shoaib Bashir</option>
+    <option>Steve Smith</option>
+    <option>Travis Head</option>
+    <option>Usman Khawaja</option>
+    <option>Will Jacks</option>
+    <option>Zak Crawley</option>
+  </select>
 </div>
+
+
+
+<div id="successMessage" style="
+  display:none;
+  margin-top:20px;
+  padding:15px;
+  background:#d4edda;
+  color:#155724;
+  border-radius:8px;
+  font-weight:600;
+  text-align:center;">
+  ✅ Your transfer has been successfully submitted!
+</div>
+
+
+    <button class="submit-btn" onclick="submitTransfers()">SUBMIT</button><th>   (Please only press once)</th>
+  </div>
+</div>
+
+<!-- Script continues in Part 2 -->
+</body>
+
+<script>
+const players = {
+  Batters: [
+    {name:"Marcus Labuschagne", country:"Australia", cost:9},
+    {name:"Joe Root", country:"England", cost:9},
+    {name:"Steve Smith", country:"Australia", cost:9},
+    {name:"Ben Duckett", country:"England", cost:8},
+    {name:"Harry Brook", country:"England", cost:8},
+    {name:"Travis Head", country:"Australia", cost:8},
+    {name:"Usman Khawaja", country:"Australia", cost:8},
+    {name:"Zak Crawley", country:"England", cost:7},
+    {name:"Ollie Pope", country:"England", cost:7},
+    {name:"Jacob Bethell", country:"England", cost:6},
+    {name:"Jake Weatherald", country:"Australia", cost:6}
+  ],
+  Allrounders: [
+    {name:"Cameron Green", country:"Australia", cost:9},
+    {name:"Ben Stokes", country:"England", cost:9},
+    {name:"Will Jacks", country:"England", cost:7},
+    {name:"Beau Webster", country:"Australia", cost:7}
+  ],
+  Wicketkeepers: [
+    {name:"Alex Carey", country:"Australia", cost:7},
+    {name:"Josh Inglis", country:"Australia", cost:6},
+    {name:"Jamie Smith", country:"England", cost:6}
+  ],
+  Bowlers: [
+    {name:"Jofra Archer", country:"England", cost:8},
+    {name:"Pat Cummins", country:"Australia", cost:8},
+    {name:"Josh Hazlewood", country:"Australia", cost:8},
+    {name:"Nathan Lyon", country:"Australia", cost:8},
+    {name:"Mitchell Starc", country:"Australia", cost:8},
+    {name:"Mark Wood", country:"England", cost:8},
+    {name:"Sean Abbott", country:"Australia", cost:7},
+    {name:"Gus Atkinson", country:"England", cost:7},
+    {name:"Scott Boland", country:"Australia", cost:7},
+    {name:"Brydon Carse", country:"England", cost:7},
+    {name:"Michael Neser", country:"Australia", cost:7},
+    {name:"Matthew Potts", country:"England", cost:7},
+    {name:"Josh Tongue", country:"England", cost:7},
+    {name:"Shoaib Bashir", country:"England", cost:6},
+    {name:"Brendan Doggett", country:"Australia", cost:6},
+    {name:"Matthew Fisher", country:"England", cost:6},
+    {name:"Todd Murphy", country:"Australia", cost:6},
+    {name:"Jhye Richardson", country:"Australia", cost:6}
+    
+  ]
+};
+
+
+// Utility: populate a select with players, optionally excluding one name
+function populateSelect(selectEl, list, excludeName = "") {
+  selectEl.innerHTML = '<option value="">Select Player</option>';
+  list.forEach(p => {
+    if (p.name !== excludeName) {
+      const optionText = `${p.name} (${p.country}) - £${p.cost}m`;
+      selectEl.insertAdjacentHTML('beforeend', `<option value="${p.name}">${optionText}</option>`);
+    }
+  });
+}
+
+// Utility: add/remove highlight class based on selection
+function applyHighlight(selectEl, className) {
+  if (selectEl.value) {
+    selectEl.classList.add(className);
+  } else {
+    selectEl.classList.remove(className);
+  }
+}
+
+// Populate players when a role is chosen; keep OUT/IN in sync and highlighted
+function updatePlayers(roleSelectId, outSelectId, inSelectId) {
+  const role = document.getElementById(roleSelectId).value;
+  const outSelect = document.getElementById(outSelectId);
+  const inSelect = document.getElementById(inSelectId);
+
+  // Reset selects and highlights
+  outSelect.classList.remove('out-selected');
+  inSelect.classList.remove('in-selected');
+  outSelect.value = "";
+  inSelect.value = "";
+  outSelect.innerHTML = '<option value="">Select Player</option>';
+  inSelect.innerHTML = '<option value="">Select Player</option>';
+
+  if (role && players[role]) {
+    // Fill both with the role's players
+    populateSelect(outSelect, players[role]);
+    populateSelect(inSelect, players[role]);
+
+    // When OUT changes: highlight and rebuild IN excluding selected OUT
+    outSelect.onchange = () => {
+      applyHighlight(outSelect, 'out-selected');
+      const selectedOut = outSelect.value;
+      populateSelect(inSelect, players[role], selectedOut);
+      inSelect.classList.remove('in-selected');
+      inSelect.value = "";
+    };
+
+    // When IN changes: highlight
+    inSelect.onchange = () => applyHighlight(inSelect, 'in-selected');
+  }
+}
+
+// Validate email and require IN if OUT is chosen (for both rows)
+function submitTransfers() {
+  const email = document.getElementById('email').value.trim();
+  const role1 = document.getElementById('role1').value;
+  const out1 = document.getElementById('out1').value;
+  const in1 = document.getElementById('in1').value;
+  const role2 = document.getElementById('role2').value;
+  const out2 = document.getElementById('out2').value;
+  const in2 = document.getElementById('in2').value;
+
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailPattern.test(email)) {
+    alert("Please enter a valid email address before submitting.");
+    return;
+  }
+  if (out1 && !in1) {
+    alert("For Transfer 1, select a Player IN if you have chosen a Player OUT.");
+    return;
+  }
+  if (out2 && !in2) {
+    alert("For Transfer 2, select a Player IN if you have chosen a Player OUT.");
+    return;
+  }
+
+  alert(`Email: ${email}
+Transfer 1: ${role1 || "-"} | OUT: ${out1 || "-"} | IN: ${in1 || "-"}
+Transfer 2: ${role2 || "-"} | OUT: ${out2 || "-"} | IN: ${in2 || "-"}`);
+}
+</script>
+
+<script>
+function submitTransfers() {
+  const email = document.getElementById('email').value.trim();
+  const role1 = document.getElementById('role1').value;
+  const out1 = document.getElementById('out1').value;
+  const in1 = document.getElementById('in1').value;
+  const role2 = document.getElementById('role2').value;
+  const out2 = document.getElementById('out2').value;
+  const in2 = document.getElementById('in2').value;
+  const newCaptain = document.getElementById('newCaptain').value;
+
+
+  // Validate email
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailPattern.test(email)) {
+    alert("Please enter a valid email address before submitting.");
+    return;
+  }
+  // Validate transfers
+  if (out1 && !in1) {
+    alert("For Transfer 1, select a Player IN if you have chosen a Player OUT.");
+    return;
+  }
+  if (out2 && !in2) {
+    alert("For Transfer 2, select a Player IN if you have chosen a Player OUT.");
+    return;
+  }
+
+  // Build payload
+  const payload = {
+  email,
+  role1, out1, in1,
+  role2, out2, in2,
+  newCaptain
+};
+
+
+
+  // Your deployed Google Apps Script Web App URL
+  const scriptURL = "https://script.google.com/macros/s/AKfycbyLMBHt-qWwPVP6bvfCLA-X0NkygdTTMz8h1OsRMGeOlCVcSyCo5ryCkDNu3jv41vZ-/exec";
+
+  // Send data to Google Sheet
+  fetch(scriptURL, {
+    method: "POST",
+    body: JSON.stringify(payload)
+  })
+  .then(response => response.text())
+  .then(result => {
+  document.getElementById("successMessage").style.display = "block";
+
+  // Disable submit button to prevent duplicates
+  document.querySelector(".submit-btn").disabled = true;
+  document.querySelector(".submit-btn").innerText = "SUBMITTED";
+
+  // Optional: scroll message into view
+  document.getElementById("successMessage").scrollIntoView({ behavior: "smooth" });
+})
+
+  .catch(error => {
+    alert("Error submitting transfers: " + error);
+  });
+}
+</script>
 
 <script src="swipe-nav.js"></script>
 
